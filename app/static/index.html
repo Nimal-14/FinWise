@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="FinWise personal expense and money manager"
+    />
+    <title>FinWise</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+    <script src="/static/app.js" defer></script>
+  </head>
+  <body>
+    <!-- Auth View -->
+    <section id="auth-view" class="auth-view">
+      <div class="auth-copy">
+        <a class="brand" href="/"><span>F</span> FinWise</a>
+        <h1>A simple way to track your money.</h1>
+        <p>
+          FinWise helps you log transactions, monitor bank accounts and cards,
+          and keep an eye on your monthly budget without the spreadsheet
+          headache.
+        </p>
+      </div>
+      <form id="auth-form" class="auth-card">
+        <h2 id="auth-title">Create your account</h2>
+        <label id="name-label">
+          Full name
+          <input name="name" autocomplete="name" placeholder="Nimal" />
+        </label>
+        <label>
+          Email address
+          <input
+            name="email"
+            type="email"
+            autocomplete="email"
+            required
+            placeholder="you@example.com"
+          />
+        </label>
+        <label>
+          Password
+          <input
+            name="password"
+            type="password"
+            minlength="8"
+            required
+            placeholder="At least 8 characters"
+          />
+        </label>
+        <p class="error" id="auth-error"></p>
+        <button type="submit" id="auth-submit">Create account</button>
+        <button type="button" class="text-button" id="auth-toggle">
+          Already registered? Sign in
+        </button>
+      </form>
+    </section>
+
+    <!-- App View -->
+    <div id="app-view" class="app-view hidden">
+      <aside>
+        <a class="brand" href="#dashboard"><span>F</span> FinWise</a>
+        <nav>
+          <button class="nav-link active" data-page="dashboard">
+            <span>⌂</span> <span>Dashboard</span>
+          </button>
+          <button class="nav-link" data-page="transactions">
+            <span>↕</span> <span>Transactions</span>
+          </button>
+          <button class="nav-link" data-page="accounts">
+            <span>▣</span> <span>Accounts & cards</span>
+          </button>
+          <button class="nav-link" data-page="analytics">
+            <span>◫</span> <span>Analytics</span>
+          </button>
+          <button class="nav-link" data-page="settings">
+            <span>⚙</span> <span>Settings</span>
+          </button>
+        </nav>
+        <div class="aside-bottom">
+          <small>Signed in as</small>
+          <strong id="sidebar-name">User</strong>
+          <button id="logout" class="text-button">Sign out</button>
+        </div>
+      </aside>
+
+      <main>
+        <header>
+          <button id="menu" class="icon-button" aria-label="Open menu">
+            ☰
+          </button>
+          <div>
+            <h2 id="page-title">Dashboard</h2>
+          </div>
+          <button id="new-transaction">+ Add transaction</button>
+        </header>
+
+        <!-- Dashboard Page -->
+        <section class="page active" id="dashboard-page">
+          <div class="welcome">
+            <div>
+              <h1>Welcome back, <span id="welcome-name">there</span></h1>
+              <p>Here is an overview of your money this month.</p>
+            </div>
+            <form id="quick-form">
+              <input
+                name="text"
+                placeholder="Quick add: e.g. Spent 250 on lunch"
+                required
+              />
+              <button type="submit">+ Add</button>
+            </form>
+          </div>
+
+          <div class="metric-grid">
+            <article class="metric featured">
+              <span>Net cash flow</span>
+              <strong id="net">₹0</strong>
+              <small>Income minus expenses</small>
+            </article>
+            <article class="metric">
+              <span>Total income</span>
+              <strong id="income">₹0</strong>
+              <small>Money received</small>
+            </article>
+            <article class="metric">
+              <span>Total expenses</span>
+              <strong id="spent">₹0</strong>
+              <small>Money spent</small>
+            </article>
+            <article class="metric">
+              <span>Total balance</span>
+              <strong id="balance">₹0</strong>
+              <small>Across active accounts</small>
+            </article>
+          </div>
+
+          <div class="dashboard-grid">
+            <article class="panel">
+              <div class="panel-title">
+                <h3>Spending by category</h3>
+              </div>
+              <div id="category-chart" class="chart empty">
+                No expense data yet.
+              </div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-title">
+                <h3>Recent transactions</h3>
+                <button class="text-button" data-go="transactions">
+                  View all
+                </button>
+              </div>
+              <div id="recent-list"></div>
+            </article>
+
+            <article class="panel insight">
+              <div>
+                <span class="kicker">Spending Note</span>
+                <h3 id="insight">Add transactions to unlock insights.</h3>
+              </div>
+              <button id="open-chat" class="secondary">Ask Assistant</button>
+            </article>
+          </div>
+        </section>
+
+        <!-- Transactions Page -->
+        <section class="page" id="transactions-page">
+          <div class="toolbar">
+            <input id="search" placeholder="Search transactions..." />
+            <select id="kind-filter">
+              <option value="">All types</option>
+              <option value="expense">Expenses</option>
+              <option value="income">Income</option>
+              <option value="transfer">Transfers</option>
+            </select>
+            <select id="category-filter">
+              <option value="">All categories</option>
+            </select>
+          </div>
+          <article class="panel">
+            <div class="panel-title">
+              <h3>All transactions</h3>
+              <span id="transaction-count" class="pill">0 records</span>
+            </div>
+            <div id="transaction-list"></div>
+          </article>
+        </section>
+
+        <!-- Accounts & Cards Page -->
+        <section class="page" id="accounts-page">
+          <div class="split">
+            <article class="panel">
+              <div class="panel-title">
+                <h3>Accounts & Cash</h3>
+                <button id="add-account" class="secondary">
+                  + Add account
+                </button>
+              </div>
+              <div id="account-list" class="tile-grid"></div>
+            </article>
+            <article class="panel">
+              <div class="panel-title">
+                <h3>Payment Cards</h3>
+                <button id="add-card" class="secondary">+ Add card</button>
+              </div>
+              <div id="card-list" class="tile-grid"></div>
+            </article>
+          </div>
+        </section>
+
+        <!-- Analytics Page -->
+        <section class="page" id="analytics-page">
+          <div class="metric-grid">
+            <article class="metric">
+              <span>Transactions</span>
+              <strong id="analytics-count">0</strong>
+              <small>Total logged</small>
+            </article>
+            <article class="metric">
+              <span>Monthly budget</span>
+              <strong id="budget-value">₹0</strong>
+              <small>Configured limit</small>
+            </article>
+            <article class="metric">
+              <span>Budget used</span>
+              <strong id="budget-used">0%</strong>
+              <small>Current month</small>
+            </article>
+          </div>
+          <div class="split">
+            <article class="panel">
+              <div class="panel-title">
+                <h3>Monthly expense trend</h3>
+              </div>
+              <div id="monthly-chart" class="chart empty">
+                No trend data yet.
+              </div>
+            </article>
+            <article class="panel">
+              <div class="panel-title">
+                <h3>Category breakdown</h3>
+              </div>
+              <div id="analytics-categories" class="chart empty">
+                No category data yet.
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- Settings Page -->
+        <section class="page" id="settings-page">
+          <form id="settings-form" class="panel settings-form">
+            <div class="panel-title">
+              <h3>Personal Settings</h3>
+            </div>
+            <div class="form-row">
+              <label>
+                Your name
+                <input name="name" required />
+              </label>
+              <label>
+                Currency
+                <select name="currency">
+                  <option>INR</option>
+                  <option>USD</option>
+                  <option>EUR</option>
+                  <option>GBP</option>
+                </select>
+              </label>
+            </div>
+            <label>
+              Monthly budget
+              <input name="monthly_budget" type="number" min="0" step="0.01" />
+            </label>
+            <div>
+              <button type="submit">Save preferences</button>
+            </div>
+            <p class="success" id="settings-message"></p>
+          </form>
+        </section>
+      </main>
+    </div>
+
+    <!-- Add/Edit Transaction Dialog -->
+    <dialog id="transaction-dialog">
+      <form id="transaction-form">
+        <div class="panel-title">
+          <h3 id="transaction-form-title">Add transaction</h3>
+          <button
+            type="button"
+            class="icon-button close-dialog"
+            aria-label="Close dialog"
+          >
+            ×
+          </button>
+        </div>
+        <input name="id" type="hidden" />
+        <div class="form-row">
+          <label>
+            Type
+            <select name="kind">
+              <option value="expense">Expense</option>
+              <option value="income">Income</option>
+              <option value="transfer">Transfer</option>
+            </select>
+          </label>
+          <label>
+            Amount
+            <input
+              name="amount"
+              type="number"
+              min="0.01"
+              step="0.01"
+              required
+              placeholder="0.00"
+            />
+          </label>
+        </div>
+        <label>
+          Description
+          <input
+            name="description"
+            required
+            maxlength="120"
+            placeholder="e.g. Weekly Groceries"
+          />
+        </label>
+        <div class="form-row">
+          <label>
+            Category
+            <select name="category"></select>
+          </label>
+          <label>
+            Payment mode
+            <select name="payment_mode">
+              <option>Cash</option>
+              <option>UPI</option>
+              <option>Debit card</option>
+              <option>Credit card</option>
+              <option>Bank transfer</option>
+            </select>
+          </label>
+        </div>
+        <div class="form-row">
+          <label>
+            From account
+            <select name="account_id"></select>
+          </label>
+          <label>
+            To account
+            <select name="to_account_id"></select>
+          </label>
+        </div>
+        <label>
+          Date
+          <input name="transacted_on" type="date" required />
+        </label>
+        <label>
+          Notes (optional)
+          <textarea
+            name="notes"
+            rows="2"
+            placeholder="Add any details or tags..."
+          ></textarea>
+        </label>
+        <p class="error modal-error"></p>
+        <button type="submit">Save transaction</button>
+      </form>
+    </dialog>
+
+    <!-- Simple Add Account / Card Dialog -->
+    <dialog id="simple-dialog">
+      <form id="simple-form">
+        <div class="panel-title">
+          <h3 id="simple-title">Add item</h3>
+          <button
+            type="button"
+            class="icon-button close-dialog"
+            aria-label="Close dialog"
+          >
+            ×
+          </button>
+        </div>
+        <div id="simple-fields"></div>
+        <p class="error modal-error"></p>
+        <button type="submit">Save</button>
+      </form>
+    </dialog>
+
+    <!-- Assistant Chat Dialog -->
+    <dialog id="chat-dialog">
+      <div class="chat">
+        <div class="panel-title">
+          <div>
+            <span class="kicker">Assistant</span>
+            <h3>Ask FinWise</h3>
+          </div>
+          <button class="icon-button close-dialog" aria-label="Close dialog">
+            ×
+          </button>
+        </div>
+        <div id="chat-messages">
+          <p class="bot">
+            Hello! Ask me about your spending, current balance, category
+            breakdown, or budget status.
+          </p>
+        </div>
+        <form id="chat-form">
+          <input
+            name="message"
+            placeholder="e.g. How much did I spend this month?"
+            required
+          />
+          <button type="submit">Ask</button>
+        </form>
+      </div>
+    </dialog>
+
+    <div id="toast" role="status"></div>
+  </body>
+</html>

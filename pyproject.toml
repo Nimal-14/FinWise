@@ -1,0 +1,16 @@
+[project]
+name = "finwise"
+version = "0.1.0"
+description = "FastAPI expense tracker with a vanilla JavaScript frontend"
+requires-python = ">=3.11"
+dependencies = ["alembic", "email-validator", "fastapi", "psycopg[binary]", "pydantic-settings", "sqlalchemy", "uvicorn[standard]"]
+
+[dependency-groups]
+dev = ["httpx", "pytest", "ruff"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff.lint]
+ignore = ["B008", "DTZ011"]
